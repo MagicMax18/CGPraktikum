@@ -31,33 +31,61 @@ int main(int argc, char **argv) {
   /* Aufgabenblatt 1: Instanziieren Sie einen WireframeRenderer */
   auto wireFrameRenderer = new WireframeRenderer(scene, img);
 
+
+  Color red = Color(0.7, 0.0, 0.0);
+  Color green = Color(0.0, 0.7, 0.0);
+  Color blue = Color(0.0, 0.0, 0.7);
+
   /* Aufgabenblatt 1, Aufgabe 2: Testen Sie Ihre drawBresenhamLine-Methode hier */
-  Color red = Color(255, 0, 0);
+//  GLPoint startPunkt = GLPoint(200, 150, 0);
 
-  GLPoint startPunkt = GLPoint(200, 150, 0);
+//  GLPoint testPunkt1 = GLPoint(100, 170, 0);
+//  GLPoint testPunkt2 = GLPoint(180, 250, 0);
+//  GLPoint testPunkt3 = GLPoint(220, 250, 0);
+//  GLPoint testPunkt4 = GLPoint(300, 170, 0);
+//  GLPoint testPunkt5 = GLPoint(300, 130, 0);
+//  GLPoint testPunkt6 = GLPoint(220, 50, 0);
+//  GLPoint testPunkt7 = GLPoint(180, 50, 0);
+//  GLPoint testPunkt8 = GLPoint(100, 130, 0);
 
-  GLPoint testPunkt1 = GLPoint(100, 170, 0);
-  GLPoint testPunkt2 = GLPoint(180, 250, 0);
-  GLPoint testPunkt3 = GLPoint(220, 250, 0);
-  GLPoint testPunkt4 = GLPoint(300, 170, 0);
-  GLPoint testPunkt5 = GLPoint(300, 130, 0);
-  GLPoint testPunkt6 = GLPoint(220, 50, 0);
-  GLPoint testPunkt7 = GLPoint(180, 50, 0);
-  GLPoint testPunkt8 = GLPoint(100, 130, 0);
+//  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt4, red); // Oktant 1
+//  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt3, red); // Oktant 2
 
-  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt4, red);
-  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt3, red);
+//  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt2, red); // Oktant 3
+//  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt1, red); // Oktant 4
 
-  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt2, red);
-  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt1, red);
+//  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt8, red); // Oktant 5
+//  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt7, red); // Oktant 6
 
-  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt8, red);
-  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt7, red);
+//  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt6, red); // Oktant 7
+//  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt5, red); // Oktant 8
 
-  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt6, red);
-  wireFrameRenderer->drawBresenhamLine(startPunkt, testPunkt5, red);
+  /* Aufgabenblatt 1, Aufgabe 3: Testen Sie Ihre seedFillArea-Methode hier */
 
-  /* Aufgabenblatt 1, Aufgabe 3: Testen Sie Ihre seedFillArea-Methode hier */  
+  // großes Dreieck zeichnen
+  GLPoint a = GLPoint(100, 100, 0);
+  GLPoint b = GLPoint(300, 100, 0);
+  GLPoint c = GLPoint(300, 200, 0);
+
+  wireFrameRenderer->drawBresenhamLine(a, b, red);
+  wireFrameRenderer->drawBresenhamLine(a, c, red);
+  wireFrameRenderer->drawBresenhamLine(b, c, red);
+
+
+  // kleines Dreieck zeichnen
+  GLPoint d = GLPoint(130, 110, 0);
+  GLPoint e = GLPoint(290, 110, 0);
+  GLPoint f = GLPoint(290, 190, 0);
+
+  wireFrameRenderer->drawBresenhamLine(d, e, red);
+  wireFrameRenderer->drawBresenhamLine(d, f, red);
+  wireFrameRenderer->drawBresenhamLine(e, f, red);
+
+
+  //  GLPoint seed = GLPoint(200, 120, 0); // Seed für Fläche ohne Loch
+    GLPoint seed = GLPoint(120, 105, 0); // Seed für Fläche mit Loch
+
+  wireFrameRenderer->seedFillArea(seed, red, green);
 
   /* Aufgabenblatt 2, Aufgabe 3: Setzen Sie die Transformationen der Modelle */
 

@@ -19,6 +19,7 @@ class Image {
   void writeAsPPM(std::string filename);
   void setValue(int x, int y, Color color);
   std::vector<Color> &getValues();
+  Color getValue(int x, int y);
   size_t getWidth() const;
   size_t getHeight() const;
 

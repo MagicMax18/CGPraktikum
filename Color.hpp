@@ -16,5 +16,7 @@ class Color {
 
   Color &operator+=(const Color &rhs);
 
+  bool operator==(const Color &color) const;
+
   float r, g, b;
 };

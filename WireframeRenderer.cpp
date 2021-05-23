@@ -1,5 +1,6 @@
 
 #include "WireframeRenderer.hpp"
+#include <stack>
 
 /**
 ** Zeichnet alle Dreiecke der Scene als Wireframe-Rendering unter Verwendung des
@@ -234,4 +235,42 @@ void WireframeRenderer::drawBresenhamLineOct8(GLPoint p1, GLPoint p2, Color colo
 ** (Aufgabenblatt 1 - Aufgabe 3) 
 **/
 void WireframeRenderer::seedFillArea(GLPoint seed, Color borderColor, Color fillColor) {
+    //Vorbedingung: mImage muss gesetzt sein
+    if (this->mImage == NULL)
+        return;
+
+    std::stack<GLPoint> pixelStack = std::stack<GLPoint>();
+
+    GLPoint pixel = GLPoint();
+
+    GLPoint neighborPixels[4];
+
+    pixelStack.push(seed);
+
+    while (!pixelStack.empty()) {
+        pixel = pixelStack.top();
+        pixelStack.pop();
+        mImage->setValue(pixel(0), pixel(1), fillColor);
+
+        GLPoint pixelNorth = GLPoint(pixel(0), pixel(1) + 1, 0);
+        GLPoint pixelWest = GLPoint(pixel(0) - 1, pixel(1), 0);
+        GLPoint pixelSouth = GLPoint(pixel(0), pixel(1) - 1, 0);
+        GLPoint pixelEast = GLPoint(pixel(0) + 1, pixel(1), 0);
+
+        neighborPixels[0] = pixelNorth;
+        neighborPixels[1] = pixelWest;
+        neighborPixels[2] = pixelSouth;
+        neighborPixels[3] = pixelEast;
+
+        for (GLPoint p : neighborPixels) {
+            if (p(0) >= this->mImage->getWidth() && p(1) >= this->mImage->getHeight()) {
+                continue;
+            }
+
+            if (!((this->mImage->getValue(p(0), p(1)) == borderColor)
+                  || (this->mImage->getValue(p(0), p(1)) == fillColor) )) {
+                pixelStack.push(p);
+            }
+        }
+    }
 }

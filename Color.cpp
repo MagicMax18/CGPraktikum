@@ -28,3 +28,11 @@ Color &Color::operator+=(const Color &rhs) {
 
   return *this;
 }
+
+bool Color::operator==(const Color &color) const {
+    if (this->b == color.b && this->g == color.g && this->r == color.r) {
+        return true;
+    } else {
+        return false;
+    }
+}
