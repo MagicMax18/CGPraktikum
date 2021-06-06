@@ -21,8 +21,8 @@ int main(int argc, char **argv) {
 
   // Verwendete Modelle festlegen
   std::vector<std::string> path_vector;
-  path_vector.push_back(std::string("/home/osboxes/CGPraktikum/data/bunny/bunny_scaled.ply"));
-  path_vector.push_back(std::string("/home/osboxes/CGPraktikum/data/basicObjects/cube_scaled.ply"));
+  path_vector.push_back(std::string("/home/civ/CGPraktikum/data/bunny/bunny_scaled.ply"));
+  path_vector.push_back(std::string("/home/civ/CGPraktikum/data/basicObjects/cube_scaled.ply"));
   // Erzeuge die Szene mit dem default Konstruktor und lade die Modelle
   auto scene = std::make_shared<Scene>();
   scene->load(path_vector);
@@ -32,9 +32,9 @@ int main(int argc, char **argv) {
   auto wireFrameRenderer = new WireframeRenderer(scene, img);
 
 
-  Color red = Color(0.7, 0.0, 0.0);
+//  Color red = Color(0.7, 0.0, 0.0);
   Color green = Color(0.0, 0.7, 0.0);
-  Color blue = Color(0.0, 0.0, 0.7);
+// Color blue = Color(0.0, 0.0, 0.7);
 
   /* Aufgabenblatt 1, Aufgabe 2: Testen Sie Ihre drawBresenhamLine-Methode hier */
 //  GLPoint startPunkt = GLPoint(200, 150, 0);
@@ -92,6 +92,7 @@ int main(int argc, char **argv) {
   /* Aufgabenblatt 2, Aufgabe 1: Rufen Sie Ihre renderScene-Methode hier auf */
 
   wireFrameRenderer->renderScene(green);
+
 
 
   /* Setup der Camera - Erst ab Aufgabenblatt 3 relevant. */
