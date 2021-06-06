@@ -63,35 +63,35 @@ int main(int argc, char **argv) {
   /* Aufgabenblatt 1, Aufgabe 3: Testen Sie Ihre seedFillArea-Methode hier */
 
   // großes Dreieck zeichnen
-  GLPoint a = GLPoint(100, 100, 0);
-  GLPoint b = GLPoint(300, 100, 0);
-  GLPoint c = GLPoint(300, 200, 0);
+//  GLPoint a = GLPoint(100, 100, 0);
+//  GLPoint b = GLPoint(300, 100, 0);
+//  GLPoint c = GLPoint(300, 200, 0);
 
-  wireFrameRenderer->drawBresenhamLine(a, b, red);
-  wireFrameRenderer->drawBresenhamLine(a, c, red);
-  wireFrameRenderer->drawBresenhamLine(b, c, red);
-
-
-  // kleines Dreieck zeichnen
-  GLPoint d = GLPoint(130, 110, 0);
-  GLPoint e = GLPoint(290, 110, 0);
-  GLPoint f = GLPoint(290, 190, 0);
-
-  wireFrameRenderer->drawBresenhamLine(d, e, red);
-  wireFrameRenderer->drawBresenhamLine(d, f, red);
-  wireFrameRenderer->drawBresenhamLine(e, f, red);
+//  wireFrameRenderer->drawBresenhamLine(a, b, red);
+//  wireFrameRenderer->drawBresenhamLine(a, c, red);
+//  wireFrameRenderer->drawBresenhamLine(b, c, red);
 
 
-  //  GLPoint seed = GLPoint(200, 120, 0); // Seed für Fläche ohne Loch
-    GLPoint seed = GLPoint(120, 105, 0); // Seed für Fläche mit Loch
+//  // kleines Dreieck zeichnen
+//  GLPoint d = GLPoint(130, 110, 0);
+//  GLPoint e = GLPoint(290, 110, 0);
+//  GLPoint f = GLPoint(290, 190, 0);
 
-  wireFrameRenderer->seedFillArea(seed, red, green);
+//  wireFrameRenderer->drawBresenhamLine(d, e, red);
+//  wireFrameRenderer->drawBresenhamLine(d, f, red);
+//  wireFrameRenderer->drawBresenhamLine(e, f, red);
+
+
+    //GLPoint seed = GLPoint(200, 120, 0); // Seed für Fläche ohne Loch
+//    GLPoint seed = GLPoint(120, 105, 0); // Seed für Fläche mit Loch
+
+//  wireFrameRenderer->seedFillArea(seed, red, green);
 
   /* Aufgabenblatt 2, Aufgabe 3: Setzen Sie die Transformationen der Modelle */
 
   /* Aufgabenblatt 2, Aufgabe 1: Rufen Sie Ihre renderScene-Methode hier auf */
 
-  
+  wireFrameRenderer->renderScene(green);
 
 
   /* Setup der Camera - Erst ab Aufgabenblatt 3 relevant. */

@@ -9,6 +9,18 @@
 ** (Aufgabenblatt 2 - Aufgabe 1)
 **/
 void WireframeRenderer::renderScene(Color color) {
+    //Vorbedingung: mImage und mScene müssen gesetzt sein
+    if (this->mImage == NULL || this->mScene == NULL) {
+        return;
+    }
+
+    for (Model model : this->mScene->getModels()) {
+        for (Triangle triangle : model.mTriangles) {
+            this->drawBresenhamLine(triangle.vertex[0], triangle.vertex[1], color);
+            this->drawBresenhamLine(triangle.vertex[0], triangle.vertex[2], color);
+            this->drawBresenhamLine(triangle.vertex[1], triangle.vertex[2], color);
+        }
+    }
 }
 
 /**
