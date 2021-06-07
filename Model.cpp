@@ -6,7 +6,7 @@ Model::Model() {
   /* Aufgabenblatt 2, Aufgabe 3: Setzen Sie die default Werte */
     mRotation = GLVector(0,0,0);
     mTranslation = GLVector(0,0,0);
-    mScale = GLVector(0,0,0);
+    mScale = GLVector(1,1,1);
 
 }
 
@@ -32,9 +32,15 @@ void Model::setScale(GLVector scale){
 }
 
 void Model::updateMatrix(){
-    this->mMatrix * mRotation;
-    this->mMatrix * mTranslation;
-    this->mMatrix * mScale;
+    //Translation setzen
+    mMatrix.setValue(0,3,mTranslation(0));
+    mMatrix.setValue(1,3,mTranslation(1));
+    mMatrix.setValue(2,3,mTranslation(2));
+
+    //Skalierung setzen
+    mMatrix.setValue(0,0,mScale(0));
+    mMatrix.setValue(1,1,mScale(1));
+    mMatrix.setValue(2,2,mScale(2));
 }
 
 GLMatrix Model::getTransformation() const { return mMatrix; }

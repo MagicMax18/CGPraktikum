@@ -89,9 +89,69 @@ int main(int argc, char **argv) {
 
   /* Aufgabenblatt 2, Aufgabe 3: Setzen Sie die Transformationen der Modelle */
 
+
+  //Aufgabenblatt 2 Aufgabe 2 Test
+  GLMatrix mTest = GLMatrix();
+  //erster zeile
+  mTest.setValue(0,0,3);
+  mTest.setValue(0,1,4);
+  mTest.setValue(0,2,7);
+  //zweite zeile
+  mTest.setValue(1,0,3);
+  mTest.setValue(1,1,8);
+  mTest.setValue(1,2,5);
+  //dritte zeile
+  mTest.setValue(2,0,2);
+  mTest.setValue(2,1,6);
+  mTest.setValue(2,2,4);
+  //translation
+  mTest.setValue(0,3,5);
+  mTest.setValue(1,3,5);
+  mTest.setValue(2,3,5);
+
+  GLMatrix mTest2 = GLMatrix();
+  //erster zeile
+  mTest2.setValue(0,0,5);
+  mTest2.setValue(0,1,8);
+  mTest2.setValue(0,2,2);
+  //zweite zeile
+  mTest2.setValue(1,0,6);
+  mTest2.setValue(1,1,3);
+  mTest2.setValue(1,2,6);
+  //dritte zeile
+  mTest2.setValue(2,0,4);
+  mTest2.setValue(2,1,7);
+  mTest2.setValue(2,2,5);
+  //translation
+  mTest2.setValue(0,3,5);
+  mTest2.setValue(1,3,5);
+  mTest2.setValue(2,3,5);
+
+  GLVector vTest = GLVector(2,4,6);
+  GLPoint pTest = GLPoint(4,7,2);
+  GLVector vRes1;
+  GLVector vRes2;
+  GLMatrix mRes;
+
+  //sollte (69,73,57) ergeben
+  vRes1 = mTest * vTest;
+
+  //sollte(59,83,63) ergeben
+  vRes2 = mTest * pTest;
+
+  //(67 85 65 75
+  // 83 83 79 85
+  // 62 62 60 65
+  //  0  0  0  1)
+  mRes = mTest * mTest2;
+
+  std::cout<<vRes1;
+  std::cout<<vRes2;
+  std::cout<<mRes;
+
   /* Aufgabenblatt 2, Aufgabe 1: Rufen Sie Ihre renderScene-Methode hier auf */
 
-  wireFrameRenderer->renderScene(green);
+  //wireFrameRenderer->renderScene(green);
 
 
 
