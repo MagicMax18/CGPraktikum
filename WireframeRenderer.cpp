@@ -16,9 +16,19 @@ void WireframeRenderer::renderScene(Color color) {
 
     for (Model model : this->mScene->getModels()) {
         for (Triangle triangle : model.mTriangles) {
-            this->drawBresenhamLine(triangle.vertex[0], triangle.vertex[1], color);
-            this->drawBresenhamLine(triangle.vertex[0], triangle.vertex[2], color);
-            this->drawBresenhamLine(triangle.vertex[1], triangle.vertex[2], color);
+            GLPoint transformedVertex0 = model.getTransformation() * triangle.vertex[0];
+            GLPoint transformedVertex1 = model.getTransformation() * triangle.vertex[1];
+            GLPoint transformedVertex2 = model.getTransformation() * triangle.vertex[2];
+
+            this->drawBresenhamLine(transformedVertex0, transformedVertex1, color);
+            this->drawBresenhamLine(transformedVertex0, transformedVertex2, color);
+            this->drawBresenhamLine(transformedVertex1, transformedVertex2, color);
+
+//            this->drawBresenhamLine(triangle.vertex[0], triangle.vertex[1], color);
+//            this->drawBresenhamLine(triangle.vertex[0], triangle.vertex[2], color);
+//            this->drawBresenhamLine(triangle.vertex[1], triangle.vertex[2], color);
+
+
         }
     }
 }

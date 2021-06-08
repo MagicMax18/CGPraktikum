@@ -21,8 +21,8 @@ int main(int argc, char **argv) {
 
   // Verwendete Modelle festlegen
   std::vector<std::string> path_vector;
-  path_vector.push_back(std::string("/home/civ/CGPraktikum/data/bunny/bunny_scaled.ply"));
-  path_vector.push_back(std::string("/home/civ/CGPraktikum/data/basicObjects/cube_scaled.ply"));
+  path_vector.push_back(std::string("/home/osboxes/CGPraktikum/data/bunny/bunny_scaled.ply"));
+  path_vector.push_back(std::string("/home/osboxes/CGPraktikum/data/basicObjects/cube_scaled.ply"));
   // Erzeuge die Szene mit dem default Konstruktor und lade die Modelle
   auto scene = std::make_shared<Scene>();
   scene->load(path_vector);
@@ -88,71 +88,17 @@ int main(int argc, char **argv) {
 //  wireFrameRenderer->seedFillArea(seed, red, green);
 
   /* Aufgabenblatt 2, Aufgabe 3: Setzen Sie die Transformationen der Modelle */
+   wireFrameRenderer->mScene->getModels()[0].setTranslation(GLVector(250, 100, 0));
+   wireFrameRenderer->mScene->getModels()[0].setScale(GLVector(0.8, 0.8, 0.8));
+   wireFrameRenderer->mScene->getModels()[0].setRotation(GLVector(0.0, AI_MATH_PI * 5.0 / 180.0, 0.0));
 
+   wireFrameRenderer->mScene->getModels()[1].setTranslation(GLVector(100, 100, 0));
+   wireFrameRenderer->mScene->getModels()[1].setScale(GLVector(0.9, 0.9, 0.9));
+   wireFrameRenderer->mScene->getModels()[1].setRotation(GLVector(AI_MATH_PI * 20.0 / 180.0, AI_MATH_PI * 45.0 / 180.0, 0.0));
 
-  //Aufgabenblatt 2 Aufgabe 2 Test
-  GLMatrix mTest = GLMatrix();
-  //erster zeile
-  mTest.setValue(0,0,3);
-  mTest.setValue(0,1,4);
-  mTest.setValue(0,2,7);
-  //zweite zeile
-  mTest.setValue(1,0,3);
-  mTest.setValue(1,1,8);
-  mTest.setValue(1,2,5);
-  //dritte zeile
-  mTest.setValue(2,0,2);
-  mTest.setValue(2,1,6);
-  mTest.setValue(2,2,4);
-  //translation
-  mTest.setValue(0,3,5);
-  mTest.setValue(1,3,5);
-  mTest.setValue(2,3,5);
-
-  GLMatrix mTest2 = GLMatrix();
-  //erster zeile
-  mTest2.setValue(0,0,5);
-  mTest2.setValue(0,1,8);
-  mTest2.setValue(0,2,2);
-  //zweite zeile
-  mTest2.setValue(1,0,6);
-  mTest2.setValue(1,1,3);
-  mTest2.setValue(1,2,6);
-  //dritte zeile
-  mTest2.setValue(2,0,4);
-  mTest2.setValue(2,1,7);
-  mTest2.setValue(2,2,5);
-  //translation
-  mTest2.setValue(0,3,5);
-  mTest2.setValue(1,3,5);
-  mTest2.setValue(2,3,5);
-
-  GLVector vTest = GLVector(2,4,6);
-  GLPoint pTest = GLPoint(4,7,2);
-  GLVector vRes1;
-  GLVector vRes2;
-  GLMatrix mRes;
-
-  //sollte (69,73,57) ergeben
-  vRes1 = mTest * vTest;
-
-  //sollte(59,83,63) ergeben
-  vRes2 = mTest * pTest;
-
-  //(67 85 65 75
-  // 83 83 79 85
-  // 62 62 60 65
-  //  0  0  0  1)
-  mRes = mTest * mTest2;
-
-  std::cout<<vRes1;
-  std::cout<<vRes2;
-  std::cout<<mRes;
 
   /* Aufgabenblatt 2, Aufgabe 1: Rufen Sie Ihre renderScene-Methode hier auf */
-
-  //wireFrameRenderer->renderScene(green);
-
+  wireFrameRenderer->renderScene(green);
 
 
   /* Setup der Camera - Erst ab Aufgabenblatt 3 relevant. */
