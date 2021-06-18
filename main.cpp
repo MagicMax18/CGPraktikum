@@ -29,12 +29,12 @@ int main(int argc, char **argv) {
 
 
   /* Aufgabenblatt 1: Instanziieren Sie einen WireframeRenderer */
-  auto wireFrameRenderer = new WireframeRenderer(scene, img);
+//  auto wireFrameRenderer = new WireframeRenderer(scene, img);
 
 
 //  Color red = Color(0.7, 0.0, 0.0);
-  Color green = Color(0.0, 0.7, 0.0);
-// Color blue = Color(0.0, 0.0, 0.7);
+//  Color green = Color(0.0, 0.7, 0.0);
+//  Color blue = Color(0.0, 0.0, 0.7);
 
   /* Aufgabenblatt 1, Aufgabe 2: Testen Sie Ihre drawBresenhamLine-Methode hier */
 //  GLPoint startPunkt = GLPoint(200, 150, 0);
@@ -88,17 +88,17 @@ int main(int argc, char **argv) {
 //  wireFrameRenderer->seedFillArea(seed, red, green);
 
   /* Aufgabenblatt 2, Aufgabe 3: Setzen Sie die Transformationen der Modelle */
-   wireFrameRenderer->mScene->getModels()[0].setTranslation(GLVector(250, 100, 0));
-   wireFrameRenderer->mScene->getModels()[0].setScale(GLVector(0.8, 0.8, 0.8));
-   wireFrameRenderer->mScene->getModels()[0].setRotation(GLVector(0.0, AI_MATH_PI * 5.0 / 180.0, 0.0));
+//   wireFrameRenderer->mScene->getModels()[0].setTranslation(GLVector(250, 100, 0));
+//   wireFrameRenderer->mScene->getModels()[0].setScale(GLVector(0.8, 0.8, 0.8));
+//   wireFrameRenderer->mScene->getModels()[0].setRotation(GLVector(0.0, AI_MATH_PI * 5.0 / 180.0, 0.0));
 
-   wireFrameRenderer->mScene->getModels()[1].setTranslation(GLVector(100, 100, 0));
-   wireFrameRenderer->mScene->getModels()[1].setScale(GLVector(0.9, 0.9, 0.9));
-   wireFrameRenderer->mScene->getModels()[1].setRotation(GLVector(AI_MATH_PI * 20.0 / 180.0, AI_MATH_PI * 45.0 / 180.0, 0.0));
+//   wireFrameRenderer->mScene->getModels()[1].setTranslation(GLVector(100, 100, 0));
+//   wireFrameRenderer->mScene->getModels()[1].setScale(GLVector(0.9, 0.9, 0.9));
+//   wireFrameRenderer->mScene->getModels()[1].setRotation(GLVector(AI_MATH_PI * 20.0 / 180.0, AI_MATH_PI * 45.0 / 180.0, 0.0));
 
 
   /* Aufgabenblatt 2, Aufgabe 1: Rufen Sie Ihre renderScene-Methode hier auf */
-  wireFrameRenderer->renderScene(green);
+//  wireFrameRenderer->renderScene(green);
 
 
   /* Setup der Camera - Erst ab Aufgabenblatt 3 relevant. */
@@ -110,22 +110,34 @@ int main(int argc, char **argv) {
   
   /* Aufgabenblatt 3:  kommentieren Sie die Zeilen wieder ein, die eine Kamera erzeugen und zur Scene hinzufügen*/
   
-  //  auto cam = std::make_shared<Camera>();
-  //GLPoint eye = GLPoint(0.0, 0.0, 300.0);
-  //cam->setEyePoint(eye);
-  //cam->setUp(GLVector(0.0, 1.0, 0.0));
-  //GLVector viewDirection = GLVector(0.0, 0, -1.0);
-  //viewDirection.normalize();
-  //cam->setViewDirection(viewDirection);
-  //cam->setSize(img->getWidth(), img->getHeight());
-  //scene->setCamera(cam);
+    auto cam = std::make_shared<Camera>();
+  GLPoint eye = GLPoint(0.0, 0.0, 300.0);
+  cam->setEyePoint(eye);
+  cam->setUp(GLVector(0.0, 1.0, 0.0));
+  GLVector viewDirection = GLVector(0.0, 0, -1.0);
+  viewDirection.normalize();
+  cam->setViewDirection(viewDirection);
+  cam->setSize(img->getWidth(), img->getHeight());
+  scene->setCamera(cam);
 
 
   /* Aufgabenblatt 3: Erzeugen Sie mindestens eine Kugel und fügen Sie diese zur Szene hinzu*/
+  const double sphereRadius = 50.0;
+  Sphere leftSphere = Sphere(GLPoint(-150.0, 0.0, -30.0), sphereRadius);
+  scene->addSphere(leftSphere);
+  Sphere rightSphere = Sphere(GLPoint(150.0, 0.0, -30.0), sphereRadius);
+  scene->addSphere(rightSphere);
     
   /* Aufgabenblatt 4: Setzen Sie materialeigenschaften für die Kugelen und die Modelle. Die Materialeigenschaften für eine Darstellung entsprechend der Beispiellösung ist in der Aufgabenstellung gegeben. */
 
   /* Aufgabenblatt 3: (Wenn nötig) Transformationen der Modelle im World space, sodass sie von der Kamera gesehen werden könnnen. Die nötigen Transformationen für eine Darstellung entsprechend der Beispiellösung ist in der Aufgabenstellung gegeben. */
+  //bunny
+  scene->getModels()[0].setTranslation(GLVector(0.0, -10.0, -30.0));
+  scene->getModels()[0].setRotation(GLVector(0.0, AI_MATH_PI * 170.0 / 180.0, 0.0));
+
+  //cube
+  scene->getModels()[1].setTranslation(GLVector(0.0, -100.0, 0.0));
+
 
   /* Stelle materialeigenschaften zur verfügung (Relevant für Aufgabenblatt 4)*/
 
@@ -133,6 +145,8 @@ int main(int argc, char **argv) {
   
     
   /* Aufgabenblatt 3: erzeugen Sie einen SolidRenderer (vorzugsweise mir einem shared_ptr) und rufen sie die Funktion renderRaycast auf */
+  SolidRenderer solidRenderer = SolidRenderer(scene, img, cam);
+  solidRenderer.renderRaycast();
   
   // Schreiben des Bildes in Datei
   if (argc > 1) {

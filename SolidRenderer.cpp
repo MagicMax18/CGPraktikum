@@ -11,6 +11,9 @@
  **/
 void SolidRenderer::renderRaycast() {
   // This function is part of the base
+    if (mImage == NULL || mScene == NULL || mCamera == NULL) {
+        return;
+    }
 
   std::cout << "Rendern mittels Raycast gestartet." << std::endl;
   // Berechnung der einzelnen Rows in eigener Methode um die
@@ -41,6 +44,33 @@ void SolidRenderer::renderRaycast() {
  * Precondition: Sowohl mImage, mScene und mCamera  müssen gesetzt sein.
  */
 void SolidRenderer::computeImageRow(size_t rowNumber) {
+    if (mImage == NULL || mScene == NULL || mCamera == NULL) {
+        return;
+    }
+
+    Color backgroundColor = Color(0.0, 0.0, 0.7); // blau
+    Color hitColor = Color(0.7, 0.0, 0.0); // rot
+
+    for (unsigned int columnNumber = 0; columnNumber < mImage->getWidth(); ++columnNumber) {
+        // Strahl zu dem Punkt erzeugen
+        Ray ray = mCamera->getRay(columnNumber, rowNumber);
+
+        // HitRecord für den Punkt aufbauen
+        HitRecord hitRecord;
+        // Initialisierungen der notwendigen Variablen
+        hitRecord.color = hitColor;
+        hitRecord.parameter = 0.0; // oder -1???
+        hitRecord.modelId = -1;
+        hitRecord.triangleId = -1;
+        hitRecord.sphereId = -1;
+        hitRecord.recursions = 0;
+
+        if (mScene->intersect(ray, hitRecord, 0.1))
+            mImage->setValue(columnNumber, rowNumber, hitRecord.color);
+        else
+            mImage->setValue(columnNumber, rowNumber, backgroundColor);
+
+    }
 }
 
 /**
