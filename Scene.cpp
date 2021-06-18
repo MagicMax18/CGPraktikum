@@ -18,7 +18,33 @@ Scene::Scene() {}
  */
 bool Scene::intersect(const Ray &ray, HitRecord &hitRecord,
                       const float epsilon) {
-    return false; // Platzhalter; entfernen bei der Implementierung
+    //Variable, um den Return Wert zu speichern
+    bool hit = false;
+    //Alle Spheren der Scene checken
+    for(Sphere sphere : mSpheres){
+        if(sphereIntersect(ray, sphere, hitRecord, epsilon)){
+            //HitRecord aktualisieren
+            hitRecord.recursions ++;
+            hitRecord.sphereId ++;
+            hit = true;
+        }
+    }
+    //Alle Dreiecke der Scene checken
+    for (Model model : mModels) {
+        for (Triangle triangle : model.mTriangles){
+            //Dreieck an Tranformation anpassen
+            triangle.vertex[0] = model.getTransformation() * triangle.vertex[0];
+            triangle.vertex[1] = model.getTransformation() * triangle.vertex[1];
+            triangle.vertex[2] = model.getTransformation() * triangle.vertex[2];
+             if(triangleIntersect(ray, triangle, hitRecord, epsilon)){
+                 //HitRecord aktualisieren
+                 hitRecord.recursions ++;
+                 hitRecord.sphereId ++;
+                 hit = true;
+             }
+        }}
+    //return false; // Platzhalter; entfernen bei der Implementierung
+    return hit;
 }
 
 /** Aufgabenblatt 3: Gibt zurück ob ein gegebener Strahl ein Dreieck  eines Modells der Szene trifft
