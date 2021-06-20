@@ -20,26 +20,34 @@ bool Scene::intersect(const Ray &ray, HitRecord &hitRecord,
                       const float epsilon) {
     //Variable, um den Return Wert zu speichern
     bool hit = false;
+    int sphereId = 0;
+    int triangleId = 0;
+    int modelId = 0;
     //Alle Spheren der Scene checken
     for(Sphere sphere : mSpheres){
         if(sphereIntersect(ray, sphere, hitRecord, epsilon)){
-            //HitRecord aktualisieren
-            hitRecord.recursions ++;
-            hitRecord.sphereId ++;
+            //HitRecord aktualisieren           
+            hitRecord.color = sphere.getMaterial().color;
+            hitRecord.sphereId = sphereId;
             hit = true;
         }
+        sphereId++;
     }
     //Alle Dreiecke der Scene checken
     for (Model model : mModels) {
+        modelId++;
         for (Triangle triangle : model.mTriangles){
             //Dreieck an Tranformation anpassen
-            triangle.vertex[0] = model.getTransformation() * triangle.vertex[0];
-            triangle.vertex[1] = model.getTransformation() * triangle.vertex[1];
-            triangle.vertex[2] = model.getTransformation() * triangle.vertex[2];
-             if(triangleIntersect(ray, triangle, hitRecord, epsilon)){
+            Triangle transformedTriangle = Triangle();
+            transformedTriangle.vertex[0] = model.getTransformation() * triangle.vertex[0];
+            transformedTriangle.vertex[1] = model.getTransformation() * triangle.vertex[1];
+            transformedTriangle.vertex[2] = model.getTransformation() * triangle.vertex[2];
+            triangleId++;
+             if(triangleIntersect(ray, transformedTriangle, hitRecord, epsilon)){
                  //HitRecord aktualisieren
-                 hitRecord.recursions ++;
-                 hitRecord.sphereId ++;
+                 hitRecord.color = model.getMaterial().color;
+                 hitRecord.triangleId = triangleId;
+                 hitRecord.modelId = modelId;
                  hit = true;
              }
         }}
