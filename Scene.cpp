@@ -42,6 +42,7 @@ bool Scene::intersect(const Ray &ray, HitRecord &hitRecord,
             transformedTriangle.vertex[0] = model.getTransformation() * triangle.vertex[0];
             transformedTriangle.vertex[1] = model.getTransformation() * triangle.vertex[1];
             transformedTriangle.vertex[2] = model.getTransformation() * triangle.vertex[2];
+            transformedTriangle.normal = crossProduct(transformedTriangle.vertex[0] - transformedTriangle.vertex[2], transformedTriangle.vertex[1] - transformedTriangle.vertex[2]);
             triangleId++;
              if(triangleIntersect(ray, transformedTriangle, hitRecord, epsilon)){
                  //HitRecord aktualisieren
@@ -51,7 +52,7 @@ bool Scene::intersect(const Ray &ray, HitRecord &hitRecord,
                  hit = true;
              }
         }}
-    //return false; // Platzhalter; entfernen bei der Implementierung
+
     return hit;
 }
 
@@ -61,7 +62,37 @@ bool Scene::intersect(const Ray &ray, HitRecord &hitRecord,
  */
 bool Scene::triangleIntersect(const Ray &ray, const Triangle &triangle,
                               HitRecord &hitRecord, const float epsilon) {
-    return false; // Platzhalter; entfernen bei der Implementierung
+    if (dotProduct(ray.direction, triangle.normal) == 0) {
+        return false; // Strahl verläuft parallel zum Dreieck
+    }
+
+    // Berechnung des Strahlparameters
+    double t = dotProduct((triangle.vertex[2] - ray.origin), triangle.normal) / dotProduct(ray.direction, triangle.normal);
+
+    // Berechnung des Schnittpunkts
+    GLPoint intersection = ray.origin + t * ray.direction;
+
+    // Prüfen, ob der Schnittpunkt innerhalb des Dreiecks liegt
+    double triangleArea = crossProduct(triangle.vertex[0] - triangle.vertex[2], triangle.vertex[1] - triangle.vertex[2]).norm() / 2.0;
+
+    double subtriangleArea1 = crossProduct(triangle.vertex[0] - intersection, triangle.vertex[1] - intersection).norm() / 2.0;
+    double subtriangleArea2 = crossProduct(triangle.vertex[0] - intersection, triangle.vertex[2] - intersection).norm() / 2.0;
+    double subtriangleArea3 = crossProduct(triangle.vertex[1] - intersection, triangle.vertex[2] - intersection).norm() / 2.0;
+
+    if (triangleArea + epsilon < subtriangleArea1 + subtriangleArea2 + subtriangleArea3) {
+        return false; // Schnittpunkt liegt außerhalb des Dreiecks
+    }
+
+    double parameter = (intersection - ray.origin).norm();
+
+    if (hitRecord.parameter > 0.0 && parameter > hitRecord.parameter) {
+        return false; // Schnittpunkt ist zu weit entfernt
+    }
+
+    hitRecord.parameter = parameter;
+    hitRecord.intersectionPoint = intersection;
+
+    return true;
 }
 
 /** Aufgabenblatt 3: Gibt zurück ob ein gegebener Strahl eine Kugel der Szene trifft
@@ -70,7 +101,57 @@ bool Scene::triangleIntersect(const Ray &ray, const Triangle &triangle,
 */
 bool Scene::sphereIntersect(const Ray &ray, const Sphere &sphere,
                             HitRecord &hitRecord, const float epsilon) {
-    return false; // Platzhalter; entfernen bei der Implementierung
+    //Variablen setzen
+        GLPoint e = ray.origin;
+        GLVector v = ray.direction;
+        double t0, t1;
+        GLPoint m = sphere.getPosition();
+        double r = sphere.getRadius();
+        GLVector d = e - m;
+
+        //a,b,c für quadratische Formel setzen (für ax² + bx + c)
+        double a = dotProduct(v,v);
+        double b = 2 * dotProduct(v, d);
+        double c = dotProduct(d, d) - r*r;
+
+        //Quadratische Formel lösen
+        double discr = b * b - 4 * a * c;
+        if (discr < 0){
+            return false;
+        }
+        else if (discr == 0){
+            t0 = t1 = - 0.5 * b / a;
+        }
+          else {
+            double q = (b > 0) ?
+                -0.5 * (b + sqrt(discr)) :
+                -0.5 * (b - sqrt(discr));
+            t0 = q / a;
+            t1 = c / q;
+        }
+
+        //Überprüfe welches t näher an dem Augpunkt liegt
+        if (t0 > t1) std::swap(t0, t1);
+        if (t0 < 0) {
+            t0 = t1;
+            if (t0 < 0){
+                return false;
+            }
+        }
+
+        //Variablen für HitRecord setzen
+        double parameter = (t0 * v).norm();
+        GLPoint intersectionPoint = e + t0 * v;
+
+
+        //Überprüfe, ob neuer Parameter näher am Augpunkt liegt als der Alte, falls ja, aktualisiere HitRecord
+        if (hitRecord.parameter > 0.0 && hitRecord.parameter < parameter) {
+            return false;
+        }
+
+        hitRecord.parameter = parameter;
+        hitRecord.intersectionPoint = intersectionPoint;
+        return true;
 }
 
 /**

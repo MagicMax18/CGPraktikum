@@ -49,7 +49,6 @@ void SolidRenderer::computeImageRow(size_t rowNumber) {
     }
 
     Color backgroundColor = Color(0.0, 0.0, 0.7); // blau
-    Color hitColor = Color(0.7, 0.0, 0.0); // rot
 
     for (unsigned int columnNumber = 0; columnNumber < mImage->getWidth(); ++columnNumber) {
         // Strahl zu dem Punkt erzeugen
@@ -58,7 +57,7 @@ void SolidRenderer::computeImageRow(size_t rowNumber) {
         // HitRecord für den Punkt aufbauen
         HitRecord hitRecord;
         // Initialisierungen der notwendigen Variablen
-        hitRecord.color = hitColor;
+        hitRecord.color = backgroundColor;
         hitRecord.parameter = 0.0; // oder -1???
         hitRecord.modelId = -1;
         hitRecord.triangleId = -1;
