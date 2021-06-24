@@ -46,6 +46,7 @@ bool Scene::intersect(const Ray &ray, HitRecord &hitRecord,
             transformedTriangle.vertex[2] = model.getTransformation() * triangle.vertex[2];
 
             transformedTriangle.normal = crossProduct(transformedTriangle.vertex[0] - transformedTriangle.vertex[2], transformedTriangle.vertex[1] - transformedTriangle.vertex[2]);
+            transformedTriangle.normal.normalize();
 
              if(triangleIntersect(ray, transformedTriangle, hitRecord, epsilon)){
                  //HitRecord aktualisieren
@@ -85,21 +86,23 @@ bool Scene::triangleIntersect(const Ray &ray, const Triangle &triangle,
     }
 
     // Berechnung des Schnittpunkts
-    GLPoint intersection = ray.origin + t * ray.direction;
+    GLPoint intersectionPoint = ray.origin + t * ray.direction;
 
     // Prüfen, ob der Schnittpunkt innerhalb des Dreiecks liegt
     double triangleArea = crossProduct(triangle.vertex[0] - triangle.vertex[2], triangle.vertex[1] - triangle.vertex[2]).norm() / 2.0;
 
-    double subtriangleArea1 = crossProduct(triangle.vertex[0] - intersection, triangle.vertex[1] - intersection).norm() / 2.0;
-    double subtriangleArea2 = crossProduct(triangle.vertex[0] - intersection, triangle.vertex[2] - intersection).norm() / 2.0;
-    double subtriangleArea3 = crossProduct(triangle.vertex[1] - intersection, triangle.vertex[2] - intersection).norm() / 2.0;
+    double subtriangleArea1 = crossProduct(triangle.vertex[0] - intersectionPoint, triangle.vertex[1] - intersectionPoint).norm() / 2.0;
+    double subtriangleArea2 = crossProduct(triangle.vertex[0] - intersectionPoint, triangle.vertex[2] - intersectionPoint).norm() / 2.0;
+    double subtriangleArea3 = crossProduct(triangle.vertex[1] - intersectionPoint, triangle.vertex[2] - intersectionPoint).norm() / 2.0;
 
     if (triangleArea + epsilon < subtriangleArea1 + subtriangleArea2 + subtriangleArea3) {
         return false; // Schnittpunkt liegt außerhalb des Dreiecks
     }
 
     hitRecord.parameter = t;
-    hitRecord.intersectionPoint = intersection;
+    hitRecord.intersectionPoint = intersectionPoint;
+    hitRecord.rayDirection = ray.direction;
+    hitRecord.normal = triangle.normal;
 
     return true;
 }
@@ -156,6 +159,9 @@ bool Scene::sphereIntersect(const Ray &ray, const Sphere &sphere,
 
     hitRecord.parameter = t0;
     hitRecord.intersectionPoint = ray.origin + t0 * ray.direction;
+    hitRecord.rayDirection = ray.direction;
+    hitRecord.normal = hitRecord.intersectionPoint - sphereCenter;
+    hitRecord.normal.normalize();
 
     return true;
 }
