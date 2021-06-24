@@ -127,9 +127,7 @@ int main(int argc, char **argv) {
   /* Aufgabenblatt 3: Erzeugen Sie mindestens eine Kugel und fügen Sie diese zur Szene hinzu*/
   const double sphereRadius = 150.0;
   Sphere leftSphere = Sphere(GLPoint(-200.0, -200.0, -150.0), sphereRadius);
-  scene->addSphere(leftSphere);
   Sphere rightSphere = Sphere(GLPoint(200.0, -200.0, -150.0), sphereRadius);
-  scene->addSphere(rightSphere);
 
   Model& bunnyModel = scene->getModels()[0];
   Model& cubeModel = scene->getModels()[1];
@@ -140,14 +138,18 @@ int main(int argc, char **argv) {
   bunnyModel.setMaterial(bunnyMaterial);
 
   Material cubeMaterial = Material();
-  cubeMaterial.color = Color(0.2, 0.2, 0.2);
+  cubeMaterial.color = Color(0.8, 0.8, 0.8);
   cubeModel.setMaterial(cubeMaterial);
 
   Material sphereMaterial = Material();
   sphereMaterial.color = Color(0.0, 0.0, 1.0);
   sphereMaterial.reflection = 1.0;
+
   leftSphere.setMaterial(sphereMaterial);
+  scene->addSphere(leftSphere);
+
   rightSphere.setMaterial(sphereMaterial);
+  scene->addSphere(rightSphere);
 
   /* Aufgabenblatt 3: (Wenn nötig) Transformationen der Modelle im World space, sodass sie von der Kamera gesehen werden könnnen. Die nötigen Transformationen für eine Darstellung entsprechend der Beispiellösung ist in der Aufgabenstellung gegeben. */
   bunnyModel.setTranslation(GLVector(0.0, -10.0, -30.0));

@@ -21,17 +21,17 @@ void SolidRenderer::renderRaycast() {
 
   // Ohne parallelisierung:
     
-  for(size_t i = 0; i < mImage->getHeight(); ++i ){
-          computeImageRow( i );
-   }
+//  for(size_t i = 0; i < mImage->getHeight(); ++i ){
+//          computeImageRow( i );
+//   }
 
   //  Parallelisierung mit OpenMP:
     
-//  #pragma omp parallel for
-//  for(size_t i = 0; i < mImage->getHeight(); ++i )
-//  {
-//      computeImageRow( i );
-//  }
+  #pragma omp parallel for
+  for(size_t i = 0; i < mImage->getHeight(); ++i )
+  {
+      computeImageRow( i );
+  }
 
   // Parallelisierung mit TBB:
     
@@ -48,6 +48,7 @@ void SolidRenderer::computeImageRow(size_t rowNumber) {
         return;
     }
 
+    Color inititalColor = Color(0.0, 0.0, 0.0);
     Color backgroundColor = Color(0.0, 0.0, 0.7); // blau
 
     for (unsigned int columnNumber = 0; columnNumber < mImage->getWidth(); ++columnNumber) {
@@ -56,8 +57,9 @@ void SolidRenderer::computeImageRow(size_t rowNumber) {
 
         // HitRecord für den Punkt aufbauen
         HitRecord hitRecord;
-        // Initialisierungen der notwendigen Variablen
-        hitRecord.color = backgroundColor;
+
+        // HitRecord initialisieren
+        hitRecord.color = inititalColor;
         hitRecord.parameter = std::numeric_limits<double>::max();
         hitRecord.modelId = -1;
         hitRecord.triangleId = -1;
@@ -84,8 +86,14 @@ void SolidRenderer::shade(HitRecord &r) {
     }
 
     if (r.modelId != -1) {
+        if (r.modelId > mScene->getModels().size()) {
+            return; // modelId ist zu groß
+        }
         r.color = mScene->getModels()[r.modelId].getMaterial().color;
     } else if (r.sphereId != -1) {
+        if (r.sphereId > mScene->getSpheres().size()) {
+            return; // sphereId ist zu groß
+        }
         r.color = mScene->getSpheres()[r.sphereId].getMaterial().color;
     }
 }

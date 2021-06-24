@@ -18,40 +18,45 @@ Scene::Scene() {}
  */
 bool Scene::intersect(const Ray &ray, HitRecord &hitRecord,
                       const float epsilon) {
-    //Variable, um den Return Wert zu speichern
+    // Variable, um den Return Wert zu speichern
     bool hit = false;
+
+    // Zähler, um die Position der getroffenen Dreiecke/Sphären aus den Behältern zu speichern
     int sphereId = 0;
     int triangleId = 0;
     int modelId = 0;
-    //Alle Spheren der Scene checken
+
+    // Alle Spheren der Szene auf Schnittpunkte prüfen
     for(Sphere sphere : mSpheres){
         if(sphereIntersect(ray, sphere, hitRecord, epsilon)){
-            //HitRecord aktualisieren           
-//            hitRecord.color = sphere.getMaterial().color;
+            //HitRecord aktualisieren
             hitRecord.sphereId = sphereId;
             hit = true;
         }
         sphereId++;
     }
-    //Alle Dreiecke der Scene checken
+    // Alle Dreiecke der Szene auf Schnittpunkte prüfen
     for (Model model : mModels) {
-        modelId++;
         for (Triangle triangle : model.mTriangles){
             //Dreieck an Tranformation anpassen
             Triangle transformedTriangle = Triangle();
+
             transformedTriangle.vertex[0] = model.getTransformation() * triangle.vertex[0];
             transformedTriangle.vertex[1] = model.getTransformation() * triangle.vertex[1];
             transformedTriangle.vertex[2] = model.getTransformation() * triangle.vertex[2];
+
             transformedTriangle.normal = crossProduct(transformedTriangle.vertex[0] - transformedTriangle.vertex[2], transformedTriangle.vertex[1] - transformedTriangle.vertex[2]);
-            triangleId++;
+
              if(triangleIntersect(ray, transformedTriangle, hitRecord, epsilon)){
                  //HitRecord aktualisieren
-//                 hitRecord.color = model.getMaterial().color;
                  hitRecord.triangleId = triangleId;
                  hitRecord.modelId = modelId;
                  hit = true;
              }
-        }}
+             triangleId++;
+        }
+        modelId++;
+    }
 
     return hit;
 }
@@ -68,8 +73,15 @@ bool Scene::triangleIntersect(const Ray &ray, const Triangle &triangle,
 
     // Berechnung des Strahlparameters
     double t = dotProduct((triangle.vertex[2] - ray.origin), triangle.normal) / dotProduct(ray.direction, triangle.normal);
+
+    // Der Schnittpunkt liegt nicht vor der Kamera, somit ist er irrelevant
     if (t < 0.0) {
         return false;
+    }
+
+    // Da der Richtungsvektor des Strahls die Länge 1 hat, entspricht t direkt dem Abstand Augpunkt - Schnittpunkt
+    if (t > hitRecord.parameter) {
+        return false; // Schnittpunkt ist zu weit entfernt
     }
 
     // Berechnung des Schnittpunkts
@@ -86,13 +98,7 @@ bool Scene::triangleIntersect(const Ray &ray, const Triangle &triangle,
         return false; // Schnittpunkt liegt außerhalb des Dreiecks
     }
 
-    double parameter = (intersection - ray.origin).norm();
-
-    if (hitRecord.parameter > 0.0 && parameter > hitRecord.parameter) {
-        return false; // Schnittpunkt ist zu weit entfernt
-    }
-
-    hitRecord.parameter = parameter;
+    hitRecord.parameter = t;
     hitRecord.intersectionPoint = intersection;
 
     return true;
@@ -104,57 +110,54 @@ bool Scene::triangleIntersect(const Ray &ray, const Triangle &triangle,
 */
 bool Scene::sphereIntersect(const Ray &ray, const Sphere &sphere,
                             HitRecord &hitRecord, const float epsilon) {
-    //Variablen setzen
-        GLPoint e = ray.origin;
-        GLVector v = ray.direction;
-        double t0, t1;
-        GLPoint m = sphere.getPosition();
-        double r = sphere.getRadius();
-        GLVector d = e - m;
+    double t0, t1;
+    GLPoint sphereCenter = sphere.getPosition();
+    double sphereRadius = sphere.getRadius();
+    GLVector distanceEyePointToSphere = ray.origin - sphereCenter;
 
-        //a,b,c für quadratische Formel setzen (für ax² + bx + c)
-        double a = dotProduct(v,v);
-        double b = 2 * dotProduct(v, d);
-        double c = dotProduct(d, d) - r*r;
+    // a,b,c für quadratische Formel setzen (für ax² + bx + c)
+    // da jedoch der Richtungsvektor des Strahls normiert ist, gilt a = 1
+    // folglich muss a nicht weiter betrachtet werden
+    double b = 2.0 * dotProduct(ray.direction, distanceEyePointToSphere);
+    double c = distanceEyePointToSphere.norm2() - sphereRadius * sphereRadius;
 
-        //Quadratische Formel lösen
-        double discr = b * b - 4 * a * c;
-        if (discr < 0){
+    //Quadratische Formel lösen
+    double discr = b * b - 4 * c;
+    if (discr < 0){
+        return false;
+    }
+    else if (discr == 0){
+        t0 = t1 = - 0.5 * b;
+    }
+      else {
+        double q = (b > 0) ?
+            -0.5 * (b + sqrt(discr)) :
+            -0.5 * (b - sqrt(discr));
+        t0 = q;
+        t1 = c / q;
+    }
+
+    //Überprüfe welches t näher an dem Augpunkt liegt
+    if (t0 > t1)
+        std::swap(t0, t1);
+
+    if (t0 < 0) {
+        t0 = t1;
+        if (t0 < 0){
             return false;
         }
-        else if (discr == 0){
-            t0 = t1 = - 0.5 * b / a;
-        }
-          else {
-            double q = (b > 0) ?
-                -0.5 * (b + sqrt(discr)) :
-                -0.5 * (b - sqrt(discr));
-            t0 = q / a;
-            t1 = c / q;
-        }
+    }
 
-        //Überprüfe welches t näher an dem Augpunkt liegt
-        if (t0 > t1) std::swap(t0, t1);
-        if (t0 < 0) {
-            t0 = t1;
-            if (t0 < 0){
-                return false;
-            }
-        }
+    // Da der Richtungsvektor des Strahls die Länge 1 hat, entspricht t direkt dem Abstand Augpunkt - Schnittpunkt
+    // Überprüfe, ob neuer Parameter näher am Augpunkt liegt als der Alte, falls ja, aktualisiere HitRecord
+    if (t0 > hitRecord.parameter) {
+        return false;
+    }
 
-        //Variablen für HitRecord setzen
-        double parameter = (t0 * v).norm();
-        GLPoint intersectionPoint = e + t0 * v;
+    hitRecord.parameter = t0;
+    hitRecord.intersectionPoint = ray.origin + t0 * ray.direction;
 
-
-        //Überprüfe, ob neuer Parameter näher am Augpunkt liegt als der Alte, falls ja, aktualisiere HitRecord
-        if (hitRecord.parameter > 0.0 && hitRecord.parameter < parameter) {
-            return false;
-        }
-
-        hitRecord.parameter = parameter;
-        hitRecord.intersectionPoint = intersectionPoint;
-        return true;
+    return true;
 }
 
 /**
