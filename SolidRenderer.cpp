@@ -27,11 +27,11 @@ void SolidRenderer::renderRaycast() {
 
   //  Parallelisierung mit OpenMP:
     
-  //#pragma omp parallel for
-  //    for(size_t i = 0; i < mImage->getHeight(); ++i )
-  //    {
-  //        computeImageRow( i );
-  //    }
+//  #pragma omp parallel for
+//  for(size_t i = 0; i < mImage->getHeight(); ++i )
+//  {
+//      computeImageRow( i );
+//  }
 
   // Parallelisierung mit TBB:
     
@@ -58,14 +58,16 @@ void SolidRenderer::computeImageRow(size_t rowNumber) {
         HitRecord hitRecord;
         // Initialisierungen der notwendigen Variablen
         hitRecord.color = backgroundColor;
-        hitRecord.parameter = 0.0; // oder -1???
+        hitRecord.parameter = std::numeric_limits<double>::max();
         hitRecord.modelId = -1;
         hitRecord.triangleId = -1;
         hitRecord.sphereId = -1;
         hitRecord.recursions = 0;
 
-        if (mScene->intersect(ray, hitRecord, 0.1))
+        if (mScene->intersect(ray, hitRecord, 0.1)) {
+            shade(hitRecord);
             mImage->setValue(columnNumber, rowNumber, hitRecord.color);
+        }
         else
             mImage->setValue(columnNumber, rowNumber, backgroundColor);
 
@@ -76,4 +78,14 @@ void SolidRenderer::computeImageRow(size_t rowNumber) {
  *  Aufgabenblatt 4: Hier wird das raytracing implementiert. Siehe Aufgabenstellung!
  */
 void SolidRenderer::shade(HitRecord &r) {
+    // Prüfen, ob ein Hit erfolgte
+    if (r.modelId == -1 && r.sphereId == -1) {
+        return;
+    }
+
+    if (r.modelId != -1) {
+        r.color = mScene->getModels()[r.modelId].getMaterial().color;
+    } else if (r.sphereId != -1) {
+        r.color = mScene->getSpheres()[r.sphereId].getMaterial().color;
+    }
 }

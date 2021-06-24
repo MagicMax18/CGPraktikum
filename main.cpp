@@ -9,6 +9,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+//#include <omp.h>
 
 #include "Scene.hpp"
 #include "SolidRenderer.hpp"
@@ -16,6 +17,8 @@
 #include "math.hpp"
 
 int main(int argc, char **argv) {
+//   omp_set_num_threads(16);
+
   // Dimensionen des Ergebnisbildes im Konstruktor setzen
   std::shared_ptr<Image> img = std::make_shared<Image>(401, 301);
 
@@ -122,27 +125,42 @@ int main(int argc, char **argv) {
 
 
   /* Aufgabenblatt 3: Erzeugen Sie mindestens eine Kugel und fügen Sie diese zur Szene hinzu*/
-  const double sphereRadius = 50.0;
-  Sphere leftSphere = Sphere(GLPoint(-150.0, 0.0, -30.0), sphereRadius);
+  const double sphereRadius = 150.0;
+  Sphere leftSphere = Sphere(GLPoint(-200.0, -200.0, -150.0), sphereRadius);
   scene->addSphere(leftSphere);
-  Sphere rightSphere = Sphere(GLPoint(150.0, 0.0, -30.0), sphereRadius);
+  Sphere rightSphere = Sphere(GLPoint(200.0, -200.0, -150.0), sphereRadius);
   scene->addSphere(rightSphere);
-    
+
+  Model& bunnyModel = scene->getModels()[0];
+  Model& cubeModel = scene->getModels()[1];
+
   /* Aufgabenblatt 4: Setzen Sie materialeigenschaften für die Kugelen und die Modelle. Die Materialeigenschaften für eine Darstellung entsprechend der Beispiellösung ist in der Aufgabenstellung gegeben. */
+  Material bunnyMaterial = Material();
+  bunnyMaterial.color = Color(0.0, 1.0, 0.0);
+  bunnyModel.setMaterial(bunnyMaterial);
+
+  Material cubeMaterial = Material();
+  cubeMaterial.color = Color(0.2, 0.2, 0.2);
+  cubeModel.setMaterial(cubeMaterial);
+
+  Material sphereMaterial = Material();
+  sphereMaterial.color = Color(0.0, 0.0, 1.0);
+  sphereMaterial.reflection = 1.0;
+  leftSphere.setMaterial(sphereMaterial);
+  rightSphere.setMaterial(sphereMaterial);
 
   /* Aufgabenblatt 3: (Wenn nötig) Transformationen der Modelle im World space, sodass sie von der Kamera gesehen werden könnnen. Die nötigen Transformationen für eine Darstellung entsprechend der Beispiellösung ist in der Aufgabenstellung gegeben. */
-  //bunny
-  scene->getModels()[0].setTranslation(GLVector(0.0, -10.0, -30.0));
-  scene->getModels()[0].setRotation(GLVector(0.0, AI_MATH_PI * 170.0 / 180.0, 0.0));
+  bunnyModel.setTranslation(GLVector(0.0, -10.0, -30.0));
+  bunnyModel.setRotation(GLVector(0.0, AI_MATH_PI * 170.0 / 180.0, 0.0));
+  bunnyModel.setScale(GLVector(1.5, 1.5, 1.5));
 
-  //cube
-  scene->getModels()[1].setTranslation(GLVector(0.0, -100.0, 0.0));
-
+  cubeModel.setTranslation(GLVector(0.0, -10.0, 0.0));
+  cubeModel.setScale(GLVector(10.0, 10.0, 10.0));
 
   /* Stelle materialeigenschaften zur verfügung (Relevant für Aufgabenblatt 4)*/
 
   /* Aufgabenblatt 4  Fügen Sie ein Licht zur Szene hinzu */
-  
+  scene->addPointLight(cam->getEyePoint() + GLVector(-100.0, 100.0, -100.0));
     
   /* Aufgabenblatt 3: erzeugen Sie einen SolidRenderer (vorzugsweise mir einem shared_ptr) und rufen sie die Funktion renderRaycast auf */
   SolidRenderer solidRenderer = SolidRenderer(scene, img, cam);

@@ -27,7 +27,7 @@ bool Scene::intersect(const Ray &ray, HitRecord &hitRecord,
     for(Sphere sphere : mSpheres){
         if(sphereIntersect(ray, sphere, hitRecord, epsilon)){
             //HitRecord aktualisieren           
-            hitRecord.color = sphere.getMaterial().color;
+//            hitRecord.color = sphere.getMaterial().color;
             hitRecord.sphereId = sphereId;
             hit = true;
         }
@@ -46,7 +46,7 @@ bool Scene::intersect(const Ray &ray, HitRecord &hitRecord,
             triangleId++;
              if(triangleIntersect(ray, transformedTriangle, hitRecord, epsilon)){
                  //HitRecord aktualisieren
-                 hitRecord.color = model.getMaterial().color;
+//                 hitRecord.color = model.getMaterial().color;
                  hitRecord.triangleId = triangleId;
                  hitRecord.modelId = modelId;
                  hit = true;
@@ -68,6 +68,9 @@ bool Scene::triangleIntersect(const Ray &ray, const Triangle &triangle,
 
     // Berechnung des Strahlparameters
     double t = dotProduct((triangle.vertex[2] - ray.origin), triangle.normal) / dotProduct(ray.direction, triangle.normal);
+    if (t < 0.0) {
+        return false;
+    }
 
     // Berechnung des Schnittpunkts
     GLPoint intersection = ray.origin + t * ray.direction;
