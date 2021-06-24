@@ -80,6 +80,20 @@ void SolidRenderer::computeImageRow(size_t rowNumber) {
  *  Aufgabenblatt 4: Hier wird das raytracing implementiert. Siehe Aufgabenstellung!
  */
 void SolidRenderer::shade(HitRecord &r) {
+    //Variablen setzen
+    GLVector n = r.normal;
+    GLVector v = r.rayDirection;
+    GLVector l = r.intersectionPoint - mScene->getPointLights()[0];
+    GLVector lM = n * dotProduct(n,l) + crossProduct(crossProduct(n,l),n) * -1 + crossProduct(n,l);
+
+    //Konstanten setzen
+    double kA = 0.4;
+    double kD = 0.4;
+    double kS = 0.2;
+    double potency = 10.0;
+    double iI = 1.0;
+
+
     // Prüfen, ob ein Hit erfolgte
     if (r.modelId == -1 && r.sphereId == -1) {
         return;
@@ -90,10 +104,16 @@ void SolidRenderer::shade(HitRecord &r) {
             return; // modelId ist zu groß
         }
         r.color = mScene->getModels()[r.modelId].getMaterial().color;
+        r.color.r = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.r;
+        r.color.g = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.g;
+        r.color.b = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.b;
     } else if (r.sphereId != -1) {
         if (r.sphereId > mScene->getSpheres().size()) {
             return; // sphereId ist zu groß
         }
         r.color = mScene->getSpheres()[r.sphereId].getMaterial().color;
+        r.color.r = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.r;
+        r.color.g = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.g;
+        r.color.b = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.b;
     }
 }
