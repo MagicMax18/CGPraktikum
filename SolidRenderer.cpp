@@ -80,20 +80,19 @@ void SolidRenderer::computeImageRow(size_t rowNumber) {
  *  Aufgabenblatt 4: Hier wird das raytracing implementiert. Siehe Aufgabenstellung!
  */
 void SolidRenderer::shade(HitRecord &r) {
-    //Variablen setzen
-    GLVector n = r.normal;
-    GLVector v = r.rayDirection;
-    GLVector l = mScene->getPointLights()[0] - r.intersectionPoint; // r.intersectionPoint - mScene->getPointLights()[0];
-    l.normalize();
-    GLVector lM = n * dotProduct(n,l) + crossProduct(crossProduct(n,l),n) * -1 + crossProduct(n,l);
-    lM.normalize();
+
+    // Vektor vom Schnittpunkt zur Lichtquelle
+    GLVector lightVector = mScene->getPointLights()[0] - r.intersectionPoint;
+    lightVector.normalize();
+
+    GLVector reflectionVector = r.normal * dotProduct(r.normal, lightVector) + crossProduct(crossProduct(r.normal, lightVector), r.normal) * -1 + crossProduct(r.normal, lightVector);
+    reflectionVector.normalize();
 
     //Konstanten setzen
-    double kA = 0.4;
-    double kD = 0.4;
-    double kS = 0.2;
-    double potency = 10.0;
-    double iI = 1.0;
+    const double kAmbient = 0.4;
+    const double kDiffuse = 0.4;
+    const double kSpecular = 0.2;
+    const double potency = 10.0;
 
 
     // Prüfen, ob ein Hit erfolgte
@@ -106,45 +105,32 @@ void SolidRenderer::shade(HitRecord &r) {
             return; // modelId ist zu groß
         }
 
+        // TODO auslagern in intersect Methode
         if (r.modelId == 1) {
-            n = -1 * n;
+            r.normal = -1 * r.normal;
         }
 
         r.color = mScene->getModels()[r.modelId].getMaterial().color;
-        r.color.r *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA ; // * r.color.r;
-        if (r.color.r > 1.0)
-            r.color.r = 1.0;
-        if (r.color.r < 0.0)
-            r.color.r = 0.0;
-        r.color.g *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA; // * r.color.g;
-        if (r.color.g > 1.0)
-            r.color.g = 1.0;
-        if (r.color.g < 0.0)
-            r.color.g = 0.0;
-        r.color.b *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA; // * r.color.b;
-        if (r.color.b > 1.0)
-            r.color.b = 1.0;
-        if (r.color.b < 0.0)
-            r.color.b = 0.0;
     } else if (r.sphereId != -1) {
         if (r.sphereId > mScene->getSpheres().size()) {
             return; // sphereId ist zu groß
         }
         r.color = mScene->getSpheres()[r.sphereId].getMaterial().color;
-        r.color.r *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA; // * r.color.r;
-        if (r.color.r > 1.0)
-            r.color.r = 1.0;
-        if (r.color.r < 0.0)
-            r.color.r = 0.0;
-        r.color.g *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA; // * r.color.g;
-        if (r.color.g > 1.0)
-            r.color.g = 1.0;
-        if (r.color.g < 0.0)
-            r.color.g = 0.0;
-        r.color.b *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA; // * r.color.b;
-        if (r.color.b > 1.0)
-            r.color.b = 1.0;
-        if (r.color.b < 0.0)
-            r.color.b = 0.0;
     }
+
+    // Das Umgebungslicht und die Lichtuelle senden weißes Licht mit voller Intensität aus
+    // Dementsprechend sind die Werte von I_i und I_s gleich 1 und müssen nicht beachtet werden
+    double lightIntensity = kSpecular * ::std::pow( dotProduct(reflectionVector, r.rayDirection), potency)
+                            + kDiffuse * dotProduct(lightVector, r.normal)
+                            + kAmbient;
+
+    // Rundungsfehler beheben
+    if (lightIntensity > 1.0)
+        lightIntensity = 1.0;
+    if (lightIntensity < 0.0)
+        lightIntensity = 0.0;
+
+    r.color.r *= lightIntensity;
+    r.color.g *= lightIntensity;
+    r.color.b *= lightIntensity;
 }
