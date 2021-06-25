@@ -83,8 +83,10 @@ void SolidRenderer::shade(HitRecord &r) {
     //Variablen setzen
     GLVector n = r.normal;
     GLVector v = r.rayDirection;
-    GLVector l = r.intersectionPoint - mScene->getPointLights()[0];
+    GLVector l = mScene->getPointLights()[0] - r.intersectionPoint; // r.intersectionPoint - mScene->getPointLights()[0];
+    l.normalize();
     GLVector lM = n * dotProduct(n,l) + crossProduct(crossProduct(n,l),n) * -1 + crossProduct(n,l);
+    lM.normalize();
 
     //Konstanten setzen
     double kA = 0.4;
@@ -103,17 +105,46 @@ void SolidRenderer::shade(HitRecord &r) {
         if (r.modelId > mScene->getModels().size()) {
             return; // modelId ist zu groß
         }
+
+        if (r.modelId == 1) {
+            n = -1 * n;
+        }
+
         r.color = mScene->getModels()[r.modelId].getMaterial().color;
-        r.color.r = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.r;
-        r.color.g = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.g;
-        r.color.b = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.b;
+        r.color.r *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA ; // * r.color.r;
+        if (r.color.r > 1.0)
+            r.color.r = 1.0;
+        if (r.color.r < 0.0)
+            r.color.r = 0.0;
+        r.color.g *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA; // * r.color.g;
+        if (r.color.g > 1.0)
+            r.color.g = 1.0;
+        if (r.color.g < 0.0)
+            r.color.g = 0.0;
+        r.color.b *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA; // * r.color.b;
+        if (r.color.b > 1.0)
+            r.color.b = 1.0;
+        if (r.color.b < 0.0)
+            r.color.b = 0.0;
     } else if (r.sphereId != -1) {
         if (r.sphereId > mScene->getSpheres().size()) {
             return; // sphereId ist zu groß
         }
         r.color = mScene->getSpheres()[r.sphereId].getMaterial().color;
-        r.color.r = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.r;
-        r.color.g = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.g;
-        r.color.b = kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA * r.color.b;
+        r.color.r *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA; // * r.color.r;
+        if (r.color.r > 1.0)
+            r.color.r = 1.0;
+        if (r.color.r < 0.0)
+            r.color.r = 0.0;
+        r.color.g *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA; // * r.color.g;
+        if (r.color.g > 1.0)
+            r.color.g = 1.0;
+        if (r.color.g < 0.0)
+            r.color.g = 0.0;
+        r.color.b *= kS * iI * ::std::pow( dotProduct(lM, v), potency) + kD * iI * dotProduct(l, n) + kA; // * r.color.b;
+        if (r.color.b > 1.0)
+            r.color.b = 1.0;
+        if (r.color.b < 0.0)
+            r.color.b = 0.0;
     }
 }
