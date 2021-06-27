@@ -102,7 +102,14 @@ bool Scene::triangleIntersect(const Ray &ray, const Triangle &triangle,
     hitRecord.parameter = t;
     hitRecord.intersectionPoint = intersectionPoint;
     hitRecord.rayDirection = ray.direction;
-    hitRecord.normal = triangle.normal;
+
+    // Die Normale des Schnittpunktes muss in Richtung des Strahlursprungs
+    // bezogen auf der vom Dreieck aufgespannten Ebene verlaufen
+    if (((intersectionPoint + triangle.normal) - ray.origin).norm() > ((intersectionPoint - triangle.normal) - ray.origin).norm()) {
+        hitRecord.normal = -1 * triangle.normal;
+    } else {
+        hitRecord.normal = triangle.normal;
+    }
 
     return true;
 }
@@ -152,7 +159,7 @@ bool Scene::sphereIntersect(const Ray &ray, const Sphere &sphere,
     }
 
     // Da der Richtungsvektor des Strahls die Länge 1 hat, entspricht t direkt dem Abstand Augpunkt - Schnittpunkt
-    // Überprüfe, ob neuer Parameter näher am Augpunkt liegt als der Alte, falls ja, aktualisiere HitRecord
+    // Wenn der Abstand größer als der bisherige im HitRecord ist, ist der Schnittpunkt irrelevant
     if (t0 > hitRecord.parameter) {
         return false;
     }
@@ -160,7 +167,14 @@ bool Scene::sphereIntersect(const Ray &ray, const Sphere &sphere,
     hitRecord.parameter = t0;
     hitRecord.intersectionPoint = ray.origin + t0 * ray.direction;
     hitRecord.rayDirection = ray.direction;
-    hitRecord.normal = hitRecord.intersectionPoint - sphereCenter;
+
+    // Wenn der Strahlursprung innerhalb der Sphäre liegt,
+    // entspricht die Normale des Schnittpunktes dem umgekehrten, normierten Radiusvektor
+    if ((ray.origin - sphereCenter).norm() < sphereRadius) {
+        hitRecord.normal = sphereCenter - hitRecord.intersectionPoint;
+    } else {
+        hitRecord.normal = hitRecord.intersectionPoint - sphereCenter;
+    }
     hitRecord.normal.normalize();
 
     return true;

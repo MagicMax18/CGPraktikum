@@ -104,12 +104,6 @@ void SolidRenderer::shade(HitRecord &r) {
         if (r.modelId > mScene->getModels().size()) {
             return; // modelId ist zu groß
         }
-
-        // TODO auslagern in intersect Methode
-        if (r.modelId == 1) {
-            r.normal = -1 * r.normal;
-        }
-
         r.color = mScene->getModels()[r.modelId].getMaterial().color;
     } else if (r.sphereId != -1) {
         if (r.sphereId > mScene->getSpheres().size()) {
