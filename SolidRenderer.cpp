@@ -83,7 +83,7 @@ void SolidRenderer::shade(HitRecord &r) {
 
     // Vektor vom Schnittpunkt zur Lichtquelle
     GLVector lightVector = mScene->getPointLights()[0] - r.intersectionPoint;
-    lightVector.normalize();
+    lightVector.normalize(); 
 
     GLVector reflectionVector = r.normal * dotProduct(r.normal, lightVector) + crossProduct(crossProduct(r.normal, lightVector), r.normal) * -1 + crossProduct(r.normal, lightVector);
     reflectionVector.normalize();
@@ -127,4 +127,19 @@ void SolidRenderer::shade(HitRecord &r) {
     r.color.r *= lightIntensity;
     r.color.g *= lightIntensity;
     r.color.b *= lightIntensity;
+
+    //aufg 3_1: kleinst möglichen Vector erstellen um den Ursprung den Schnittpunkts zu verschieben, damit man vermeidet, dass er sich selbst schneidet
+    GLVector minVector = GLVector(std::numeric_limits< double >::min(),std::numeric_limits< double >::min(),std::numeric_limits< double >::min());
+    GLVector shadeVector = (r.intersectionPoint + minVector) - mScene->getPointLights()[0];
+    shadeVector.normalize();
+
+    //aufg _2
+    HitRecord shadeRecord = HitRecord();
+    shadeRecord.color = r.color;
+    shadeRecord.parameter = std::numeric_limits<double>::max();
+    shadeRecord.modelId = -1;
+    shadeRecord.triangleId = -1;
+    shadeRecord.sphereId = -1;
+    shadeRecord.recursions = 0;
+
 }
