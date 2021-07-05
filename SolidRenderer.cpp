@@ -88,7 +88,6 @@ void SolidRenderer::shade(HitRecord &r) {
     GLVector reflectionVector = r.normal * dotProduct(r.normal, lightVector) + crossProduct(crossProduct(r.normal, lightVector), r.normal) * -1 + crossProduct(r.normal, lightVector);
     reflectionVector.normalize();
 
-    //Konstanten setzen
     const double kAmbient = 0.4;
     const double kDiffuse = 0.4;
     const double kSpecular = 0.2;
@@ -124,22 +123,27 @@ void SolidRenderer::shade(HitRecord &r) {
     if (lightIntensity < 0.0)
         lightIntensity = 0.0;
 
-    r.color.r *= lightIntensity;
-    r.color.g *= lightIntensity;
-    r.color.b *= lightIntensity;
+    // Da die Lichtquelle weißes Licht emittiert, müssen alle Farbanteile in gleichem Maß angepasst werden
+    r.color *= lightIntensity;
 
-    //aufg 3_1: kleinst möglichen Vector erstellen um den Ursprung den Schnittpunkts zu verschieben, damit man vermeidet, dass er sich selbst schneidet
-    GLVector minVector = GLVector(std::numeric_limits< double >::min(),std::numeric_limits< double >::min(),std::numeric_limits< double >::min());
-    GLVector shadeVector = (r.intersectionPoint + minVector) - mScene->getPointLights()[0];
-    shadeVector.normalize();
+    // Schattenberechnung
+    Ray shadeRay = Ray();
+    shadeRay.direction = mScene->getPointLights()[0] - r.intersectionPoint;
+    shadeRay.direction.normalize();
+    // Ursprung des Schattenstrahls etwas in Richtung Lichtquelle verschieben, damit sich Objekte nicht selbst schneiden
+    shadeRay.origin = r.intersectionPoint + shadeRay.direction * 0.1;
 
-    //aufg _2
     HitRecord shadeRecord = HitRecord();
     shadeRecord.color = r.color;
-    shadeRecord.parameter = std::numeric_limits<double>::max();
+    shadeRecord.parameter = r.parameter;
     shadeRecord.modelId = -1;
     shadeRecord.triangleId = -1;
     shadeRecord.sphereId = -1;
     shadeRecord.recursions = 0;
+
+    if (mScene->intersect(shadeRay, shadeRecord, 0.01)) {
+        // Der Schnittpunkt liegt im Schatten. Dementsprechend muss die Farbintensität reduziert werden
+        r.color *= 0.4;
+    }
 
 }
