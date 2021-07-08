@@ -81,11 +81,13 @@ void SolidRenderer::computeImageRow(size_t rowNumber) {
  */
 void SolidRenderer::shade(HitRecord &r) {
 
+    const unsigned int maxRecursions = 5;
+
     // Vektor vom Schnittpunkt zur Lichtquelle
     GLVector lightVector = mScene->getPointLights()[0] - r.intersectionPoint;
     lightVector.normalize(); 
 
-    GLVector reflectionVector = r.normal * dotProduct(r.normal, lightVector) + crossProduct(crossProduct(r.normal, lightVector), r.normal) * -1 + crossProduct(r.normal, lightVector);
+    GLVector reflectionVector = r.normal * dotProduct(r.normal, lightVector) + crossProduct(crossProduct(r.normal, lightVector), r.normal) * -1;
     reflectionVector.normalize();
 
     const double kAmbient = 0.4;
@@ -135,7 +137,7 @@ void SolidRenderer::shade(HitRecord &r) {
 
     HitRecord shadeRecord = HitRecord();
     shadeRecord.color = r.color;
-    shadeRecord.parameter = r.parameter;
+    shadeRecord.parameter = (mScene->getPointLights()[0] - r.intersectionPoint).norm();
     shadeRecord.modelId = -1;
     shadeRecord.triangleId = -1;
     shadeRecord.sphereId = -1;
@@ -144,6 +146,41 @@ void SolidRenderer::shade(HitRecord &r) {
     if (mScene->intersect(shadeRay, shadeRecord, 0.01)) {
         // Der Schnittpunkt liegt im Schatten. Dementsprechend muss die Farbintensität reduziert werden
         r.color *= 0.4;
+    }
+
+
+    // Reflexion berechnen
+    double reflection = 0.0;
+    if (r.modelId != -1) {
+        reflection = mScene->getModels()[r.modelId].getMaterial().reflection;
+    } else {
+        reflection = mScene->getSpheres()[r.sphereId].getMaterial().reflection;
+    }
+
+    if (reflection == 0.0 || maxRecursions == r.recursions) {
+        // Nichtreflektierendes Material getroffen oder maximale Rekursionstiefe erreicht => Abbruch
+        return;
+    }
+
+    // Bei perfekter Reflexion muss der HitRecord
+    if (reflection == 1.0) {
+        r.color = Color(0.0, 0.0, 0.0);
+    }
+
+    Ray reflectionRay = Ray();
+    reflectionRay.direction = r.normal * dotProduct(r.normal, -1 * r.rayDirection) + crossProduct(crossProduct(r.normal, -1 * r.rayDirection), r.normal) * -1;
+    reflectionRay.direction.normalize();
+    // Ursprung des Reflexionsstrahls etwas in Strahlrichtung verschieben, damit sich Objekte nicht selbst schneiden
+    reflectionRay.origin = r.intersectionPoint + reflectionRay.direction * 0.01;
+
+    r.modelId = -1;
+    r.triangleId = -1;
+    r.sphereId = -1;
+    r.parameter = std::numeric_limits<double>::max();
+    r.recursions++;
+
+    if (mScene->intersect(reflectionRay, r, 0.01)) {
+        shade(r);
     }
 
 }
